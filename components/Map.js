@@ -77,11 +77,11 @@ const Map = ({ areas, isDevMode, currentPolygonPoints, friendsData, onCanvasClic
     };
 
     return (
-        <div id="map-container" ref={mapContainerRef}>
+        <div className="relative w-full max-w-5xl mx-auto overflow-hidden rounded-lg shadow-2xl" ref={mapContainerRef}>
             <Image
                 ref={imageRef}
                 id="map-image"
-                src="/Beatherder-Map.png"
+                src="/Beatherder Map.png"
                 alt="Beat-Herder Festival Map"
                 width={1200}
                 height={800}
