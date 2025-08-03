@@ -1,12 +1,37 @@
 // components/Map.js
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, memo } from 'react';
 import Image from 'next/image';
 
 const Map = ({ areas, isDevMode, currentPolygonPoints, friendsData, onCanvasClick }) => {
     const canvasRef = useRef(null);
     const imageRef = useRef(null);
-    const mapContainerRef = useRef(null);
 
+    const redrawAll = () => {
+        const canvas = canvasRef.current;
+        const image = imageRef.current;
+        const ctx = canvas?.getContext('2d');
+
+        if (!canvas || !image || !ctx) return;
+
+        canvas.width = image.clientWidth;
+        canvas.height = image.clientHeight;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Draw saved areas
+        for (const areaId in areas) {
+            const area = areas[areaId];
+            if (area && area.polygon) {
+                drawPolygon(ctx, area.polygon, 'rgba(29, 78, 216, 0.3)', 'rgba(29, 78, 216, 0.7)');
+            }
+        }
+
+        // Draw current polygon in dev mode
+        if (isDevMode && currentPolygonPoints.length > 0) {
+            drawPolygon(ctx, currentPolygonPoints, 'rgba(255, 255, 0, 0.3)', 'rgba(255, 255, 0, 0.7)');
+        }
+    };
+    
     const drawPolygon = (ctx, points, color, strokeColor) => {
         if (!points || points.length < 1) return;
         const canvas = canvasRef.current;
@@ -31,43 +56,11 @@ const Map = ({ areas, isDevMode, currentPolygonPoints, friendsData, onCanvasClic
         });
     };
 
-    const redrawAll = () => {
-        const canvas = canvasRef.current;
-        const image = imageRef.current;
-        if (!canvas || !image) return;
-
-        // Resize canvas to match image dimensions
-        canvas.width = image.clientWidth;
-        canvas.height = image.clientHeight;
-        
-        const ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        // Draw saved areas
-        for (const areaId in areas) {
-            const area = areas[areaId];
-            if (area && area.polygon) {
-                drawPolygon(ctx, area.polygon, 'rgba(29, 78, 216, 0.3)', 'rgba(29, 78, 216, 0.7)');
-            }
-        }
-
-        // Draw current polygon in dev mode
-        if (isDevMode && currentPolygonPoints.length > 0) {
-            drawPolygon(ctx, currentPolygonPoints, 'rgba(255, 255, 0, 0.3)', 'rgba(255, 255, 0, 0.7)');
-        }
-    };
-    
-    // Redraw when data changes
     useEffect(() => {
         redrawAll();
-    }, [areas, isDevMode, currentPolygonPoints]);
-
-    // Handle window resize
-    useEffect(() => {
-        const handleResize = () => redrawAll();
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, [redrawAll]);
+        window.addEventListener('resize', redrawAll);
+        return () => window.removeEventListener('resize', redrawAll);
+    }, [areas, isDevMode, currentPolygonPoints, friendsData]);
 
     const handleMapClick = (evt) => {
         if (!isDevMode || !canvasRef.current) return;
@@ -77,14 +70,15 @@ const Map = ({ areas, isDevMode, currentPolygonPoints, friendsData, onCanvasClic
     };
 
     return (
-        <div className="relative w-full max-w-5xl mx-auto overflow-hidden rounded-lg shadow-2xl" ref={mapContainerRef}>
-            <Image
+        <div id="map-container" className="relative w-full max-w-[1200px] mx-auto overflow-hidden rounded-lg shadow-lg">
+             <Image
                 ref={imageRef}
                 id="map-image"
-                src="/Beatherder Map.png"
+                src="https://i.ibb.co/3yk31BFr/Beatherder-Map.png"
                 alt="Beat-Herder Festival Map"
                 width={1200}
                 height={800}
+                className="block w-full h-auto bg-gray-200"
                 priority
                 onLoad={redrawAll}
             />
@@ -110,4 +104,4 @@ const Map = ({ areas, isDevMode, currentPolygonPoints, friendsData, onCanvasClic
     );
 };
 
-export default Map;
+export default memo(Map);
