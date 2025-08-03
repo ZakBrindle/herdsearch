@@ -192,7 +192,7 @@ export default function HomePage() {
       <div className="p-4 md:p-8 max-w-7xl mx-auto">
         <header className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Herd Searcher</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Herd Search</h1>
             <p className="text-gray-600">Stay connected with your crew at Beatherder festival.</p>
           </div>
           <button onClick={logOut} className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition">Sign Out</button>
